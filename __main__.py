@@ -1,4 +1,4 @@
-import __init__
+from __init__ import *
 import Queue
 
 TaskQueue = Queue.Queue(maxsize = 0)
@@ -10,4 +10,4 @@ spider = Spider(TaskQueue, debug = False)
 spider.Login()
 
 spider.Scan('thelyad')
-spider.Output(open('result.txt', 'wb'), self.ContentMake())
+spider.Output(open('result.json', 'wb'), spider.ContentMake())

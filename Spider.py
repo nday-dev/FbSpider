@@ -1,6 +1,7 @@
 #--coding:utf-8--
 import re
 import sys
+import json
 import time
 import chardet
 import getpass
@@ -13,6 +14,7 @@ class Spider:
     def __init__(self, DownloaderQueue, debug = False):
 
         self.DownloaderQueue = DownloaderQueue
+        self.RegularExpression = json.load(open('RegularExpression.json'))
 
         self.Prefix = "https://m.facebook.com/"
 
@@ -68,7 +70,7 @@ class Spider:
         infoencode = chardet.detect(content).get('encoding', 'utf-8')
         return content.decode(infoencode, 'ignore').encode(typeEncode)
 
-    def ReGet(RegularExpression, Content, group = 0):
+    def ReGet(self, RegularExpression, Content, group = 0):
         try:
             return re.search(RegularExpression, Content).group(group)
         except AttributeError:
@@ -76,21 +78,37 @@ class Spider:
 
     def UserInit(self, username, startindex = '0'):
         self.CurrentUser = username
-        self.PersonalInfo = []
         self.HaveFriends = True
         self.StartIndex = startindex
         self.UserPrefix = self.Prefix + username + "/friends?all=1&startindex=" 
         self.Friends = []
+
+    def InfoExtracter(self, content, RegularExpression):
+        Info = {}
+        for item in RegularExpression.iteritems():
+            key, value = item
+            if type(value) == str:
+                Info[key] = self.ReGet(value, content, group = 1)
+            elif type(value) == unicode:
+                Info[key] = self.ReGet(value.encode(typeEncode), content, group = 1)
+            elif type(value) == tuple or type(value) == list:
+                context = re.findall(value[0], content)
+                Info[key] = []
+                for string in context:
+                    Info[key].append(self.InfoExtracter(string, value[1]))
+            elif type(value) == dict:
+                Info[key] = self.InfoExtracter(content, value)
+            else:
+                print item
+                print "Error: InfoExtracter: Unexpected value type!"
+        return Info
 
     def Scan(self, username, startindex = '0'):
         self.UserInit(username, startindex)
 
         # Get Personal Info
         string = self.Load(self.Prefix + self.CurrentUser + '/')
-
-        self.PersonalInfo.append({'NickName': self.ReGet(r'<div class="bi">.*?<strong class="br">(.*?)</strong>.*?</div>', string, group = 1)})
-        self.PersonalInfo.append({'Gender': self.ReGet(r'<tr>.*?性别.*?<div class="dp">(.*?)</div>.*?</tr>', string, group = 1)})
-        self.PersonalInfo.append({'UsingLanguage': self.ReGet(r'<tr>.*?使用语言.*?<div class="dp">(.*?)</div>.*?</tr>', string, group = 1)})
+        self.PersonalInfo = self.InfoExtracter(string, self.RegularExpression)
 
         # Get Friends Profile Info
         string = self.Load(self.UserPrefix + self.StartIndex)
@@ -120,18 +138,11 @@ class Spider:
             time.sleep(5)
 
     def ContentMake(self):
-        content = []
-        content.append({'UserName': self.CurrentUser})
-        content.append({'PersonalInfo': self.PersonalInfo})
-        content.append({'Friends': self.Friends})
+        content = {}
+        content['UserName'] = self.CurrentUser
+        content['PersonalInfo'] = self.PersonalInfo
+        content['Friends'] = self.Friends
         return content
 
     def Output(self, WriteHandle, content):
-        WriteHandle.write(r'{')
-        for element in content[:-1]:
-            WriteHandle.write(r'"%s"' %element.keys()[0])
-            if type(element.values()[0]) == type([]):
-                self.Output(WriteHandle, element.values()[0])
-            else:
-                WriteHandle.write(r': "%r"; ' %element.values()[0])
-        WriteHandle.write(r'}')
+        json.dump(content, WriteHandle)
