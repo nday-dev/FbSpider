@@ -66,7 +66,13 @@ class Spider:
    
     def Load(self, URL):
         print "URL = %s" %URL
-        content = self.br.open(URL).read()
+        content = ''
+        try:
+            content = self.br.open(URL).read()
+        except mechanize._response.httperror_seek_wrapper, Info:
+            print "Error: mechanize._response.httperror_seek_wrapper: ", Info
+            return ''
+
         infoencode = chardet.detect(content).get('encoding', 'utf-8')
         return content.decode(infoencode, 'ignore').encode(typeEncode)
 
@@ -76,11 +82,17 @@ class Spider:
         except AttributeError:
             return 'N.A.'
 
-    def UserInit(self, username, startindex = '0'):
+    def UserInit(self, username, idType = 'username', startindex = '0'):
         self.CurrentUser = username
         self.HaveFriends = True
         self.StartIndex = startindex
-        self.UserPrefix = self.Prefix + username + "/friends?all=1&startindex=" 
+        self.UserPrefix = ''
+        if (idType == 'username'):
+            self.UserPrefix = self.Prefix + username + "/friends?all=1&startindex=" 
+        elif (idType == 'uid'):
+            self.UserPrefix = self.Prefix + 'profile.php?v=friends&all=1&id=' + self.CurrentUser + '&startindex='
+        else:
+            print "Error: Unknown User Identification Type!"
         self.Friends = []
 
     def InfoExtracter(self, content, RegularExpression):
@@ -103,8 +115,9 @@ class Spider:
                 print "Error: InfoExtracter: Unexpected value type!"
         return Info
 
-    def Scan(self, username, startindex = '0'):
-        self.UserInit(username, startindex)
+    def Scan(self, username, idType = 'username', startindex = '0'):
+        startindex = str(startindex)
+        self.UserInit(username, idType = idType, startindex = startindex)
 
         # Get Personal Info
         string = self.Load(self.Prefix + self.CurrentUser + '/')
@@ -116,23 +129,50 @@ class Spider:
         try:
             self.NumberOfFriends = int(re.search(r"好友（([\d]*) 位）", string).group(1))
         except AttributeError:
+            print "Error: No Friends for this user!"
             self.NumberOfFriends = 0
             self.HaveFriends = False
             self.Download(self.UserPrefix + self.StartIndex, 'Err.html')
 
-        # Read Friends List
+        # Specifically for First Page
+        UserInfo = re.findall(r'<div class="w cc">(.*?)</div>', string)
+        if len(UserInfo) == 0:
+            print "Error: No UserInfo could be matched in this page!"
+            print "URL: %s" %(self.UserPrefix + self.StartIndex)
+
+        for Info in UserInfo:
+            user = {}
+            user['UserName'] = self.ReGet(r'<a class="cd" href="/(.*?)\?fref=fr_tab">.*?</a>', Info, group = 1)
+            user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=fr_tab">', Info, group = 1)
+            user['NickName'] = self.ReGet(r'<a class="cd".*?>(.*?)</a>', Info, group = 1)
+            user['Description'] = self.ReGet(r'<span class="bx">(.*?)</span>', Info, group = 1)
+            self.Friends.append(user)
+        try:
+            self.StartIndex = re.search(r'<a href="/thelyad/friends\?all=1&amp;startindex=([\d]*?)"><span>更多</span></a>', string).group(1)
+        except AttributeError:
+            self.HaveFriends = False
+            return self.Friends
+        time.sleep(5)
+
+       # Read Friends List
         while (self.HaveFriends):
             string = self.Load(self.UserPrefix + self.StartIndex)
-            UserInfo = re.findall(r'<div class="w cc">(.*?)</div>', string)
+
+            UserInfo = re.findall(r'<td class="w t">(.*?)</div><div class="bq">', string)
+            if len(UserInfo) == 0:
+                print "Error: No UserInfo could be matched in this page!"
+                print "URL: %s" %(self.UserPrefix + self.StartIndex)
             for Info in UserInfo:
                 user = {}
-                user['UserName'] = self.ReGet(r'<a class="cd" href="/(.*?)\?fref=fr_tab">.*?</a>', string, group = 1)
-                user['NickName'] = self.ReGet(r'<a class="cd".*?>(.*?)</a>', string, group = 1)
-                user['Description'] = self.ReGet(r'<div class="ce cf"><span class="bx">(.*?)</span></div>', string, group = 1)
+                user['UserName'] = self.ReGet(r'<a class="bm" href="/(.*?)\?fref=fr_tab">', Info, group = 1)
+                user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=fr_tab">', Info, group = 1)
+                user['NickName'] = self.ReGet(r'<a class="bm".*?>(.*?)</a>', Info, group = 1)
+                user['Description'] = self.ReGet(r'<span class="bp">(.*?)</span>', Info, group = 1)
                 self.Friends.append(user)
             try:
-                self.StartIndex = re.search(r'<a href="/thelyad/friends\?all=1&amp;startindex=([\d]*?)"><span>更多</span></a>', string).group(1)
+                self.StartIndex = re.search(r'<a href=".*?startindex=([\d]*?)"><span>更多</span></a>', string).group(1)
             except AttributeError:
+                print "Info: All friends have been scanned for user: %s" %self.CurrentUser
                 self.HaveFriends = False
                 return self.Friends
             time.sleep(5)
