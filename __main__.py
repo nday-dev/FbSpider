@@ -7,7 +7,7 @@ downloader = Downloader(TaskQueue)
 
 spider = Spider(TaskQueue, debug = False)
 
-spider.Login()
+spider.Login(UsingSavedAccount = True, UsingSavedPass = True)
 Output = open('result.json', 'wb')
 Output.write('[')
 spider.Scan('thelyad', idType = 'username', startindex = '0')

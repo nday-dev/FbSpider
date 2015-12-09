@@ -5,6 +5,7 @@ import json
 import time
 import chardet
 import getpass
+import keyring
 import mechanize
 
 typeEncode = sys.getfilesystemencoding()
@@ -37,19 +38,24 @@ class Spider:
 
         self.br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
 
-    def Login(self, Email = None, Pass = None):
+    def Login(self, Email = None, Pass = None, UsingSavedAccount = False, UsingSavedPass = False):
         self.br.open("http://m.facebook.com/")
         self.br.select_form(nr=0)
         #self.br['locale'] = 'en_US'
         #self.br['non_com_login'] = ''
-        if (Email == None):
-            self.br['email'] = raw_input('E-mail Address: ')
-        else:
+        if (Email != None):
             self.br['email'] = Email
-        if (Pass == None):
-            self.br['pass'] = getpass.getpass('Password: ')
+        elif UsingSavedAccount:
+            self.br['email'] = keyring.get_password('FbSpider', 'Account')
         else:
+            self.br['email'] = raw_input('E-mail Address: ')
+
+        if (Pass != None):
             self.br['pass'] = Pass
+        elif UsingSavedPass:
+            self.br['pass'] = keyring.get_password('FbSpider', self.br['email'])
+        else:
+            self.br['pass'] = getpass.getpass('Password: ')
         #self.br['lsd'] = '20TO1'
         response = self.br.submit()
         if (self.Load(self.Prefix).find('个人主页')) > 0:
