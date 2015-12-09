@@ -52,6 +52,10 @@ class Spider:
             self.br['pass'] = Pass
         #self.br['lsd'] = '20TO1'
         response = self.br.submit()
+        if (self.Load(self.Prefix).find('个人主页')) > 0:
+            print "Info: Login Success!"
+        else:
+            print "Warning: Login Insuccess"
 
     def FileDownload(self, URL, path):
         self.DownloaderQueue.put((URL, path))
@@ -69,8 +73,8 @@ class Spider:
         content = ''
         try:
             content = self.br.open(URL).read()
-        except mechanize._response.httperror_seek_wrapper, Info:
-            print "Error: mechanize._response.httperror_seek_wrapper: ", Info
+        except mechanize._mechanize.LinkNotFoundError, Info:
+            print "Error: mechanize._mechanize.LinkNotFoundError ", Info
             return ''
 
         infoencode = chardet.detect(content).get('encoding', 'utf-8')
@@ -84,6 +88,7 @@ class Spider:
 
     def UserInit(self, username, idType = 'username', startindex = '0'):
         self.CurrentUser = username
+        self.idType = idType
         self.HaveFriends = True
         self.StartIndex = startindex
         self.UserPrefix = ''
@@ -109,7 +114,10 @@ class Spider:
                 for string in context:
                     Info[key].append(self.InfoExtracter(string, value[1]))
             elif type(value) == dict:
-                Info[key] = self.InfoExtracter(content, value)
+                try:
+                    Info[key] = self.InfoExtracter(self.ReGet(value['InfoRange'], content, group = 1), {key: value['RegularExpression']})[key]
+                except KeyError:
+                    Info[key] = self.InfoExtracter(content, value)
             else:
                 print item
                 print "Error: InfoExtracter: Unexpected value type!"
@@ -142,16 +150,18 @@ class Spider:
 
         for Info in UserInfo:
             user = {}
-            user['UserName'] = self.ReGet(r'<a class="cd" href="/(.*?)\?fref=fr_tab">.*?</a>', Info, group = 1)
-            user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=fr_tab">', Info, group = 1)
+            user['UserName'] = self.ReGet(r'<a class="cd" href="/(.*?)\?fref=.*?">.*?</a>', Info, group = 1)
+            user['UID'] = self.ReGet(r'<a class="cd" href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
             user['NickName'] = self.ReGet(r'<a class="cd".*?>(.*?)</a>', Info, group = 1)
             user['Description'] = self.ReGet(r'<span class="bx">(.*?)</span>', Info, group = 1)
             self.Friends.append(user)
         try:
-            self.StartIndex = re.search(r'<a href="/thelyad/friends\?all=1&amp;startindex=([\d]*?)"><span>更多</span></a>', string).group(1)
+            self.StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
         except AttributeError:
+            print "Info: All friends have been scanned for user: %s" %self.CurrentUser
             self.HaveFriends = False
             return self.Friends
+        print "Info: Sleep: 5 Sec"
         time.sleep(5)
 
        # Read Friends List
@@ -164,22 +174,30 @@ class Spider:
                 print "URL: %s" %(self.UserPrefix + self.StartIndex)
             for Info in UserInfo:
                 user = {}
-                user['UserName'] = self.ReGet(r'<a class="bm" href="/(.*?)\?fref=fr_tab">', Info, group = 1)
-                user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=fr_tab">', Info, group = 1)
+                user['UserName'] = self.ReGet(r'<a class="bm" href="/(.*?)\?fref=.*?">', Info, group = 1)
+                user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
                 user['NickName'] = self.ReGet(r'<a class="bm".*?>(.*?)</a>', Info, group = 1)
                 user['Description'] = self.ReGet(r'<span class="bp">(.*?)</span>', Info, group = 1)
                 self.Friends.append(user)
             try:
-                self.StartIndex = re.search(r'<a href=".*?startindex=([\d]*?)"><span>更多</span></a>', string).group(1)
+                self.StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
             except AttributeError:
                 print "Info: All friends have been scanned for user: %s" %self.CurrentUser
                 self.HaveFriends = False
                 return self.Friends
+            print "Info: Sleep: 5 Sec"
             time.sleep(5)
 
     def ContentMake(self):
         content = {}
-        content['UserName'] = self.CurrentUser
+        if self.idType == 'username':
+            content['UserName'] = self.CurrentUser
+            content['UID'] = 'N.A.'
+        elif self.idType == 'uid':
+            content['UserName'] = 'N.A.'
+            content['UID'] = self.CurrentUser
+        else:
+            print "Error: Unknown User ID Type!"
         content['PersonalInfo'] = self.PersonalInfo
         content['Friends'] = self.Friends
         return content
