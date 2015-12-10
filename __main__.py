@@ -1,11 +1,13 @@
 from __init__ import *
+import json
 import Queue
 
 TaskQueue = Queue.Queue(maxsize = 0)
 
 downloader = Downloader(TaskQueue)
+extracter = InfoExtracter(json.load(open('RegularExpression.json')))
 
-spider = Spider(TaskQueue, debug = False)
+spider = Spider(TaskQueue, extracter, debug = False)
 
 spider.Login(UsingSavedAccount = True, UsingSavedPass = True)
 Output = open('result.json', 'wb')
