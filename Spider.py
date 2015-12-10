@@ -94,7 +94,7 @@ class Spider:
         self.StartIndex = startindex
         self.UserPrefix = ''
         if (idType == 'username'):
-            self.UserPrefix = self.Prefix + username + "/friends?all=1&startindex=" 
+            self.UserPrefix = self.Prefix + self.CurrentUser + "/friends?all=1&startindex=" 
         elif (idType == 'uid'):
             self.UserPrefix = self.Prefix + 'profile.php?v=friends&all=1&id=' + self.CurrentUser + '&startindex='
         else:
