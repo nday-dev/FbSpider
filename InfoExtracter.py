@@ -7,8 +7,9 @@ typeEncode = sys.getfilesystemencoding()
 
 class InfoExtracter:
 
-    def __init__(self, RegularExpression):
+    def __init__(self, Colony, RegularExpression):
 
+        self.Colony = Colony
         self.RegularExpression = RegularExpression
 
     def FileDownload(self, URL, path):

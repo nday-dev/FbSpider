@@ -130,3 +130,4 @@ class Spider:
 
     def Output(self, WriteHandle):
         json.dump(self.Extracter.ContentMake(), WriteHandle)
+        print "PRINT"

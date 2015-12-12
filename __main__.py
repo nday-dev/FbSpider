@@ -2,19 +2,17 @@ from __init__ import *
 import json
 import Queue
 
+Output = open('result.json', 'wb')
 TaskQueue = Queue.Queue(maxsize = 0)
 
 downloader = Downloader(TaskQueue)
-extracter = InfoExtracter(json.load(open('RegularExpression.json')))
+colony = Colony(Spider, InfoExtracter, 
+        Output, TaskQueue, json.load(open('RegularExpression.json')))
 
-spider = Spider(TaskQueue, extracter, debug = False)
+colony.Push(('thelyad', 'username', ))
+colony.Push(('100000965387047', 'uid', ))
+colony.SpiderInit()
+colony.Manage()
+colony = None
 
-spider.Login(UsingSavedAccount = True, UsingSavedPass = True)
-Output = open('result.json', 'wb')
-Output.write('[')
-spider.Scan('thelyad', idType = 'username', startindex = '0')
-spider.Output(Output)
-Output.write(',')
-spider.Scan('100000965387047', idType='uid', startindex = '0')
-spider.Output(Output)
-Output.write(']')
+del colony
