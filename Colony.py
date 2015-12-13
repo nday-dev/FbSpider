@@ -68,7 +68,7 @@ class Colony:
         return self.Extracter(self, self.RegularExpression, self.IconFolder)
 
     def Push(self, Identity):
-        identity = '%s, %s' %(Identity[0], Identity[1])
+        identity = '%s, %s' %(Identity[0], Identity[1]) #[0]: User Identity; [1]: idType
         if not self.Hash.has_key(identity):
             self.Hash[identity] = True
             self.TaskQueue.put(Identity)

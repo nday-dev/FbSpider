@@ -2,6 +2,10 @@ from __init__ import *
 import json
 import Queue
 
+open('Chinese.bak.json', 'ab').write('[')
+open('Foreigner.bak.json', 'ab').write('[')
+open('Student.bak.json', 'ab').write('[')
+
 Output = open('result.json', 'wb')
 TaskQueue = Queue.Queue(maxsize = 0)
 

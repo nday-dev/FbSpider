@@ -28,6 +28,23 @@ class InfoExtracter:
         self.PersonalInfo = {}
         self.Friends = []
 
+    def JudgeUser(self, user):
+        return True
+
+    def JudgeProfile(self, PersonalInfo):
+        return True
+
+    def Push(self, user):
+        identity = ()
+        if user['UID'] == 'N.A.':
+            identity = (user['UserName'], 'username',)
+        else:
+            identity = (user['UID'], 'uid')
+        if (self.JudgeUser(user)):
+            self.Colony.Push(identity)
+        else:
+            open('Foreigner.bak.json', 'ab').write('"%s, %s", ' %(identity[0], identity[1]))
+
     def InfoExtracter(self, content, RegularExpression):
         Info = {}
         for item in RegularExpression.iteritems():
@@ -60,6 +77,11 @@ class InfoExtracter:
         self.FileDownload(self.ReGet(r'<a href="/photo.php?.*?"><img src="(.+?)".*?>', string, group = 1), 
                 self.IconFolder + '/' + self.idType + ', ' + self.CurrentUser + '.png')
 
+        if (self.JudgeProfile(self.PersonalInfo)):
+            open('Student.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
+        else:
+            open('Chinese.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
+
     def ScanFriendsProfile(self, string):
         # Get Friends Profile Info
         try:
@@ -84,6 +106,7 @@ class InfoExtracter:
             user['NickName'] = self.ReGet(r'<a .*? href=".*?fref=.*?">(.*?)</a>', Info, group = 1)
             user['Description'] = self.ReGet(r'<div class[^<>]*?>([^<>]*?)</div>', Info, group = 1)
             self.Friends.append(user)
+            self.Push(user)
         try:
             StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
             return StartIndex

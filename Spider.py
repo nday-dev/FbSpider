@@ -107,7 +107,7 @@ class Spider:
 
         # Get Personal Info
         string = self.Load(self.Prefix + self.CurrentUser + '/')
-        self.Extracter.ScanProfile(string)
+        Flag = self.Extracter.ScanProfile(string)
 
         # Get Friends Profile Info
         string = self.Load(self.UserPrefix + self.StartIndex)
@@ -115,7 +115,7 @@ class Spider:
         self.Extracter.ScanFriendsProfile(string)
 
         # Read Friends List
-        while (True):
+        while (Flag):
             print "Info: Sleep: 5 Sec"
             time.sleep(5)
             try:
