@@ -77,10 +77,13 @@ class InfoExtracter:
         self.FileDownload(self.ReGet(r'<a href="/photo.php?.*?"><img src="(.+?)".*?>', string, group = 1), 
                 self.IconFolder + '/' + self.idType + ', ' + self.CurrentUser + '.png')
 
-        if (self.JudgeProfile(self.PersonalInfo)):
+        Flag = self.JudgeProfile(self.PersonalInfo)
+        if (Flag):
             open('Student.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
         else:
             open('Chinese.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
+
+        return Flag
 
     def ScanFriendsProfile(self, string):
         # Get Friends Profile Info
