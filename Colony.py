@@ -72,6 +72,7 @@ class Colony:
         if not self.Hash.has_key(identity):
             self.Hash[identity] = True
             self.TaskQueue.put(Identity)
+            print "Info: New Task: User: ", Identity
             return True
         return False
 
