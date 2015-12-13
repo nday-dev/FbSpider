@@ -4,7 +4,7 @@ import Queue
 class Colony:
 
     def __init__(self, SpiderClass, ExtracterClass, 
-            WriteHandle, DownloadQueue, RegularExpression, 
+            WriteHandle, DownloadQueue, RegularExpression, IconFolder, 
             HashTableBackup = 'Hash.bak.json', TaskQueueBackup = 'Task.bak.json', debug = False):
 
         self.Spider = SpiderClass
@@ -13,6 +13,7 @@ class Colony:
         self.WriteHandle = WriteHandle
         self.DownloadQueue = DownloadQueue
         self.RegularExpression = RegularExpression
+        self.IconFolder = IconFolder
 
         self.HashTableBackup = HashTableBackup
         self.TaskQueueBackup = TaskQueueBackup
@@ -38,6 +39,9 @@ class Colony:
         self.WriteHandle.write('[')
 
     def __del__(self):
+        self.End()
+
+    def End(self):
         output = open(self.HashTableBackup, 'wb')
         json.dump(self.Hash, output)
         output.close()
@@ -48,8 +52,12 @@ class Colony:
         json.dump(Q, output)
         output.close()
 
-        print "DEL"
+        print "Info: Destroy Colony"
         self.WriteHandle.write(']')
+
+
+    def Download(self, arg):
+        self.DownloadQueue.put(arg)
 
     def SpiderInit(self):
         Spider = self.Spider(self.TaskQueue, self.ExtracterInit(), self.DebugMode)
@@ -57,11 +65,12 @@ class Colony:
         self.SpiderQueue.put(Spider)
 
     def ExtracterInit(self):
-        return self.Extracter(self, self.RegularExpression)
+        return self.Extracter(self, self.RegularExpression, self.IconFolder)
 
     def Push(self, Identity):
-        if not self.Hash.has_key(Identity):
-            self.Hash[Identity] = True
+        identity = '%s, %s' %(Identity[0], Identity[1])
+        if not self.Hash.has_key(identity):
+            self.Hash[identity] = True
             self.TaskQueue.put(Identity)
             return True
         return False
@@ -70,6 +79,7 @@ class Colony:
         Flag = ''
         while not self.TaskQueue.empty():
             Task = self.TaskQueue.get()
+            print "Info: Current Task: ", Task
             Spider = self.SpiderQueue.get()
             Spider.Scan(Task[0], Task[1]) # Task should be a tuple object, with [0]: user identity; [1]: idType
             self.WriteHandle.write(Flag)

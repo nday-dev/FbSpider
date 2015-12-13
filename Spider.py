@@ -77,11 +77,11 @@ class Spider:
         f.close()
    
     def Load(self, URL):
-        print "URL = %s" %URL
+        print "Info: Load Page. URL: %s" %URL
         content = ''
         try:
             content = self.br.open(URL).read()
-        except mechanize._mechanize.LinkNotFoundError, Info:
+        except mechanize.URLError, Info:
             print "Error: mechanize._mechanize.LinkNotFoundError ", Info
             return ''
 
@@ -114,9 +114,6 @@ class Spider:
 
         self.Extracter.ScanFriendsProfile(string)
 
-        # Specifically for First Page
-        self.StartIndex = self.Extracter.ScanFriends(string, FirstPage = True)
-
         # Read Friends List
         while (True):
             print "Info: Sleep: 5 Sec"
@@ -130,4 +127,4 @@ class Spider:
 
     def Output(self, WriteHandle):
         json.dump(self.Extracter.ContentMake(), WriteHandle)
-        print "PRINT"
+        print "Info: Output User: ", self.CurrentUser, ', ', self.idType

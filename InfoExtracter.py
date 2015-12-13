@@ -7,13 +7,14 @@ typeEncode = sys.getfilesystemencoding()
 
 class InfoExtracter:
 
-    def __init__(self, Colony, RegularExpression):
+    def __init__(self, Colony, RegularExpression, IconFolder):
 
         self.Colony = Colony
         self.RegularExpression = RegularExpression
+        self.IconFolder = IconFolder
 
     def FileDownload(self, URL, path):
-        self.DownloaderQueue.put((URL, path))
+        self.Colony.Download((URL, path,))
 
     def ReGet(self, RegularExpression, Content, group = 0):
         try:
@@ -55,6 +56,10 @@ class InfoExtracter:
         # Get Personal Info
         self.PersonalInfo = self.InfoExtracter(string, self.RegularExpression)
 
+        # Download Profile Icon
+        self.FileDownload(self.ReGet(r'<a href="/photo.php?.*?"><img src="(.+?)".*?>', string, group = 1), 
+                self.IconFolder + '/' + self.idType + ', ' + self.CurrentUser + '.png')
+
     def ScanFriendsProfile(self, string):
         # Get Friends Profile Info
         try:
@@ -63,44 +68,21 @@ class InfoExtracter:
             print "Error: No Friends for this user!"
             # raise ValueError, "No Friends for this user!"
             self.NumberOfFriends = 0
-            self.Download(self.UserPrefix + self.StartIndex, 'Err.html')
+            self.FileDownload(self.UserPrefix + self.StartIndex, 'Err.html')
 
-    def ScanFirstPage(self, string):
-        # Specifically for First Page
-        UserInfo = re.findall(r'<div class="w cc">(.*?)</div>', string)
-        if len(UserInfo) == 0:
-            print "Error: No UserInfo could be matched in this page!"
-            # raise ValueError, "No UserInfo could be matched in this page!"
-
-        for Info in UserInfo:
-            user = {}
-            user['UserName'] = self.ReGet(r'<a class="cd" href="/(.*?)\?fref=.*?">.*?</a>', Info, group = 1)
-            user['UID'] = self.ReGet(r'<a class="cd" href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
-            user['NickName'] = self.ReGet(r'<a class="cd".*?>(.*?)</a>', Info, group = 1)
-            user['Description'] = self.ReGet(r'<span class="bx">(.*?)</span>', Info, group = 1)
-            self.Friends.append(user)
-        try:
-            StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
-            return StartIndex
-        except AttributeError:
-            print "Info: All friends have been scanned for user: %s" %self.CurrentUser
-            return None
-
-    def ScanFriends(self, string, FirstPage = False):
-        if FirstPage == True:
-            return self.ScanFirstPage(string)
+    def ScanFriends(self, string):
 
         # Read Friends List
-        UserInfo = re.findall(r'<td class="w t">(.*?)</div><div class="bq">', string)
+        UserInfo = re.findall(r'<td class="w t">(.*?)</td>', string)
         if len(UserInfo) == 0:
             print "Error: No UserInfo could be matched in this page!"
             # raise ValueError, "No UserInfo could be matched in this page!"
         for Info in UserInfo:
             user = {}
-            user['UserName'] = self.ReGet(r'<a class="bm" href="/(.*?)\?fref=.*?">', Info, group = 1)
-            user['UID'] = self.ReGet(r'<a class="bm" href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
-            user['NickName'] = self.ReGet(r'<a class="bm".*?>(.*?)</a>', Info, group = 1)
-            user['Description'] = self.ReGet(r'<span class="bp">(.*?)</span>', Info, group = 1)
+            user['UserName'] = self.ReGet(r'href="/(.*?)\?fref=.*?">', Info, group = 1)
+            user['UID'] = self.ReGet(r'href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
+            user['NickName'] = self.ReGet(r'<a .*? href=".*?fref=.*?">(.*?)</a>', Info, group = 1)
+            user['Description'] = self.ReGet(r'<div class[^<>]*?>([^<>]*?)</div>', Info, group = 1)
             self.Friends.append(user)
         try:
             StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
