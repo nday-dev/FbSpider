@@ -22,6 +22,5 @@ colony.SpiderInit()
 try:
     print "Info: Start Colony.Manage()"
     colony.Manage()
-finally:
-    colony.End()
-    downloader.stop()
+except KeyboardInterrupt:
+    pass
