@@ -16,8 +16,6 @@ downloader.start()
 colony = Colony(Spider, InfoExtracter, 
         Output, TaskQueue, json.load(open('RegularExpression.json')), './Icon')
 
-colony.Push(('thelyad', 'username', ))
-colony.Push(('100000965387047', 'uid', ))
 colony.SpiderInit()
 try:
     print "Info: Start Colony.Manage()"
