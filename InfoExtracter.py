@@ -93,7 +93,7 @@ class InfoExtracter:
             print "Error: No Friends for this user!"
             # raise ValueError, "No Friends for this user!"
             self.NumberOfFriends = 0
-            self.FileDownload(self.UserPrefix + self.StartIndex, 'Err.html')
+            open("UsersWithNoFriends.bak.log", "ab").write("%s, %s\n" %(self.CurrentUesr, self.idType))
 
     def ScanFriends(self, string):
 
