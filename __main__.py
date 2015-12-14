@@ -22,7 +22,8 @@ separatorPath = {
     'Student': RuntimeDataPrefix + 'Student.bak.json'}
 
 colony = Colony(Spider, InfoExtracter, 
-        Output, TaskQueue, json.load(open(LibPrefix + 'RegularExpression.json')), RuntimeDataPrefix + './Icon',
+        Output, TaskQueue, json.load(open(LibPrefix + 'RegularExpression.json')), json.load(open(LibPrefix + 'InfoExtractorRe.json')), 
+            RuntimeDataPrefix + './Icon',
         HashTableBackup = RuntimeDataPrefix + 'Hash.bak.json', TaskQueueBackup = RuntimeDataPrefix + "Task.bak.json", SeparatorPath = separatorPath)
 
 colony.SpiderInit()

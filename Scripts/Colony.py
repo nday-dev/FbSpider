@@ -5,7 +5,7 @@ import Queue
 class Colony:
 
     def __init__(self, SpiderClass, ExtracterClass, 
-            WriteHandle, DownloadQueue, RegularExpression, IconFolder, 
+            WriteHandle, DownloadQueue, RegularExpression, Pattern, IconFolder, 
             HashTableBackup = 'Hash.bak.json', TaskQueueBackup = 'Task.bak.json', SeparatorPath = None, debug = False):
 
         self.Spider = SpiderClass
@@ -14,6 +14,7 @@ class Colony:
         self.WriteHandle = WriteHandle
         self.DownloadQueue = DownloadQueue
         self.RegularExpression = RegularExpression
+        self.Pattern = Pattern
         self.IconFolder = IconFolder
 
         self.HashTableBackup = HashTableBackup
@@ -68,10 +69,10 @@ class Colony:
 
     def ExtracterInit(self):
         if self.SeparatorPath != None:
-            return self.Extracter(self, self.RegularExpression, self.IconFolder,
+            return self.Extracter(self, self.RegularExpression, self.Pattern, self.IconFolder,
                     self.SeparatorPath)
         else:
-            return self.Extracter(self, self.RegularExpression, self.IconFolder)
+            return self.Extracter(self, self.RegularExpression, self.Pattern, self.IconFolder)
 
     def Push(self, Identity):
         identity = '%s, %s' %(Identity[0], Identity[1]) #[0]: User Identity; [1]: idType

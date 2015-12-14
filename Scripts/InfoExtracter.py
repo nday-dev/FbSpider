@@ -7,7 +7,7 @@ typeEncode = sys.getfilesystemencoding()
 
 class InfoExtracter:
 
-    def __init__(self, Colony, RegularExpression, IconFolder,
+    def __init__(self, Colony, RegularExpression, Pattern, IconFolder, 
             SeparatorPath = {'Foreigner': 'Foreigner.bak.json', 'Chinese': 'Chinese.bak.json', 'Students': 'Student.bak.json'}):
 
         self.Colony = Colony
@@ -16,14 +16,34 @@ class InfoExtracter:
         
         self.SeparatorPath = SeparatorPath
 
+        self.Patterns = self.PatternInit(Pattern)
+
     def FileDownload(self, URL, path):
         self.Colony.Download((URL, path,))
 
-    def ReGet(self, RegularExpression, Content, group = 0):
+    def ReGet(self, Pattern, Content, group = 0):
         try:
-            return re.search(RegularExpression, Content).group(group)
+            if type(Pattern) == str or type(Pattern) == unicode:
+                return re.search(Pattern, Content).group(group)
+            return Pattern.search(Content).group(group)
         except AttributeError:
             return 'N.A.'
+
+    def PatternInit(self, RegularExpression):
+        Pattern = {}
+        for item in RegularExpression:
+            key, value = item
+            if type(value) == str:
+                Pattern[key] = re.compile(value)
+            elif type(value) == unicode:
+                Pattern[key] = re.compile(value.encode(typeEncode))
+            elif type(value) == dict:
+                Pattern[key] = self.Pattern(value)
+            else:
+                print item
+                print "Error: InfoExtracter: Unexpected Pattern re value type!"
+                # raise AttributeError, "Unexpected Pattern re value type!"
+        return Info
 
     def UserInit(self, username, idType = 'username'):
         self.CurrentUser = username
@@ -77,7 +97,7 @@ class InfoExtracter:
         self.PersonalInfo = self.InfoExtracter(string, self.RegularExpression)
 
         # Download Profile Icon
-        self.FileDownload(self.ReGet(r'<a href="/photo.php?.*?"><img src="(.+?)".*?>', string, group = 1), 
+        self.FileDownload(self.ReGet(self.Pattern['IconDownload'], string, group = 1), 
                 self.IconFolder + '/' + self.idType + ', ' + self.CurrentUser + '.png')
 
         Flag = self.JudgeProfile(self.PersonalInfo)
@@ -91,7 +111,7 @@ class InfoExtracter:
     def ScanFriendsProfile(self, string):
         # Get Friends Profile Info
         try:
-            self.NumberOfFriends = int(re.search(r"好友（([\d]*) 位）", string).group(1))
+            self.NumberOfFriends = int(self.ReGet(self.Pattern['FriendsProfile']['NumberOfFriends'], string, group = 1))
         except AttributeError:
             print "Error: No Friends for this user!"
             # raise ValueError, "No Friends for this user!"
@@ -107,14 +127,13 @@ class InfoExtracter:
             # raise ValueError, "No UserInfo could be matched in this page!"
         for Info in UserInfo:
             user = {}
-            user['UserName'] = self.ReGet(r'href="/(.*?)\?fref=.*?">', Info, group = 1)
-            user['UID'] = self.ReGet(r'href="/profile.php\?id=(.*?)&amp;fref=.*?">', Info, group = 1)
-            user['NickName'] = self.ReGet(r'<a .*? href=".*?fref=.*?">(.*?)</a>', Info, group = 1)
-            user['Description'] = self.ReGet(r'<div class[^<>]*?>([^<>]*?)</div>', Info, group = 1)
+            for item in self.Pattern['Friends']:
+                key, value = item
+                user[key] = self.ReGet(value, Info, group = 1)
             self.Friends.append(user)
             self.Push(user)
         try:
-            StartIndex = re.search(r'<a href=".*?startindex=([\d]*).*?"><span>更多</span></a>', string).group(1)
+            StartIndex = self.ReGet(self.Pattern['StartIndex'], string, group = 1)
             return StartIndex
         except AttributeError:
             print "Info: All friends have been scanned for user: %s" %self.CurrentUser
