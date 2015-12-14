@@ -94,10 +94,13 @@ class Spider:
         self.idType = idType
         self.StartIndex = startindex
         self.UserPrefix = ''
+        self.FriendsPrefix = ''
         if (idType == 'username'):
-            self.UserPrefix = self.Prefix + self.CurrentUser + "/friends?all=1&startindex=" 
+            self.UserPrefix = self.Prefix
+            self.FriendsPrefix = self.UserPrefix + self.CurrentUser + "/friends?all=1&startindex=" 
         elif (idType == 'uid'):
-            self.UserPrefix = self.Prefix + 'profile.php?v=friends&all=1&id=' + self.CurrentUser + '&startindex='
+            self.UserPrefix = self.Prefix + 'profile.php?id='
+            self.FriendsPrefix = self.UserPrefix + self.CurrentUser + '&v=friends&all=1&startindex='
         else:
             print "Error: Unknown User Identification Type!"
 
@@ -121,7 +124,7 @@ class Spider:
             print "Info: Sleep: 5 Sec"
             time.sleep(5)
             if (self.StartIndex != 'N.A.'):
-                string = self.Load(self.UserPrefix + self.StartIndex)
+                string = self.Load(self.FriendsPrefix + self.StartIndex)
             else:
                 return
 
