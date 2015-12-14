@@ -110,12 +110,12 @@ class Spider:
         self.Extractor.UserInit(username = username, idType = idType)
 
         # Get Personal Info
-        string = self.Load(self.Prefix + self.CurrentUser + '/')
+        string = self.Load(self.UserPrefix + self.CurrentUser)
         Flag = self.Extractor.ScanProfile(string)
 
         # Get Friends Profile Info
         if (Flag):
-            string = self.Load(self.UserPrefix + self.StartIndex)
+            string = self.Load(self.FriendsPrefix + self.StartIndex)
 
             Flag = self.Extractor.ScanFriendsProfile(string)
 
