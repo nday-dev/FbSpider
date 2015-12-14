@@ -7,11 +7,14 @@ typeEncode = sys.getfilesystemencoding()
 
 class InfoExtracter:
 
-    def __init__(self, Colony, RegularExpression, IconFolder):
+    def __init__(self, Colony, RegularExpression, IconFolder,
+            SeparatorPath = {'Foreigner': 'Foreigner.bak.json', 'Chinese': 'Chinese.bak.json', 'Students': 'Student.bak.json'}):
 
         self.Colony = Colony
         self.RegularExpression = RegularExpression
         self.IconFolder = IconFolder
+        
+        self.SeparatorPath = SeparatorPath
 
     def FileDownload(self, URL, path):
         self.Colony.Download((URL, path,))
@@ -43,7 +46,7 @@ class InfoExtracter:
         if (self.JudgeUser(user)):
             self.Colony.Push(identity)
         else:
-            open('Foreigner.bak.json', 'ab').write('"%s, %s", ' %(identity[0], identity[1]))
+            open(self.SeparatorPath['Foreigner'], 'ab').write('"%s, %s", ' %(identity[0], identity[1]))
 
     def InfoExtracter(self, content, RegularExpression):
         Info = {}
@@ -79,9 +82,9 @@ class InfoExtracter:
 
         Flag = self.JudgeProfile(self.PersonalInfo)
         if (Flag):
-            open('Student.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
+            open(self.SeparatorPath['Student'], 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
         else:
-            open('Chinese.bak.json', 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
+            open(self.SeparatorPath['Chinese'], 'ab').write('"%s, %s", ' %(self.CurrentUser, self.idType))
 
         return Flag
 
