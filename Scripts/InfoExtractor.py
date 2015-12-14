@@ -3,7 +3,8 @@ import re
 import sys
 import chardet
 
-typeEncode = sys.getfilesystemencoding()
+# typeEncode = sys.getfilesystemencoding()
+typeEncode = 'utf-8'
 
 class InfoExtractor:
 

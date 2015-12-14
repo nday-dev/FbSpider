@@ -8,7 +8,8 @@ import getpass
 import keyring
 import mechanize
 
-typeEncode = sys.getfilesystemencoding()
+# typeEncode = sys.getfilesystemencoding()
+typeEncode = 'utf-8'
 
 class Spider:
 
