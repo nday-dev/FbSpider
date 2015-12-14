@@ -5,7 +5,7 @@ import chardet
 
 typeEncode = sys.getfilesystemencoding()
 
-class InfoExtracter:
+class InfoExtractor:
 
     def __init__(self, Colony, RegularExpression, Pattern, IconFolder, 
             SeparatorPath = {'Foreigner': 'Foreigner.bak.json', 'Chinese': 'Chinese.bak.json', 'Students': 'Student.bak.json'}):
@@ -41,7 +41,7 @@ class InfoExtracter:
                 Pattern[key] = self.Pattern(value)
             else:
                 print item
-                print "Error: InfoExtracter: Unexpected Pattern re value type!"
+                print "Error: PatternInit: Unexpected Pattern re value type!"
                 # raise AttributeError, "Unexpected Pattern re value type!"
         return Info
 
@@ -68,7 +68,7 @@ class InfoExtracter:
         else:
             open(self.SeparatorPath['Foreigner'], 'ab').write('"%s, %s", ' %(identity[0], identity[1]))
 
-    def InfoExtracter(self, content, RegularExpression):
+    def InfoExtractor(self, content, RegularExpression):
         Info = {}
         for item in RegularExpression.iteritems():
             key, value = item
@@ -80,21 +80,21 @@ class InfoExtracter:
                 context = re.findall(value[0], content)
                 Info[key] = []
                 for string in context:
-                    Info[key].append(self.InfoExtracter(string, value[1]))
+                    Info[key].append(self.InfoExtractor(string, value[1]))
             elif type(value) == dict:
                 try:
-                    Info[key] = self.InfoExtracter(self.ReGet(value['InfoRange'], content, group = 1), {key: value['RegularExpression']})[key]
+                    Info[key] = self.InfoExtractor(self.ReGet(value['InfoRange'], content, group = 1), {key: value['RegularExpression']})[key]
                 except KeyError:
-                    Info[key] = self.InfoExtracter(content, value)
+                    Info[key] = self.InfoExtractor(content, value)
             else:
                 print item
-                print "Error: InfoExtracter: Unexpected value type!"
+                print "Error: InfoExtractor: Unexpected value type!"
                 # raise AttributeError, "Unexpected value type!"
         return Info
 
     def ScanProfile(self, string):
         # Get Personal Info
-        self.PersonalInfo = self.InfoExtracter(string, self.RegularExpression)
+        self.PersonalInfo = self.InfoExtractor(string, self.RegularExpression)
 
         # Download Profile Icon
         self.FileDownload(self.ReGet(self.Pattern['IconDownload'], string, group = 1), 

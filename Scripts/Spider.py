@@ -12,7 +12,7 @@ typeEncode = sys.getfilesystemencoding()
 
 class Spider:
 
-    def __init__(self, DownloaderQueue, InfoExtracter, debug = False):
+    def __init__(self, DownloaderQueue, InfoExtractor, debug = False):
 
         self.DownloaderQueue = DownloaderQueue
 
@@ -37,8 +37,8 @@ class Spider:
 
         self.br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
 
-        # Info Extracter
-        self.Extracter = InfoExtracter
+        # Info Extractor
+        self.Extractor = InfoExtractor
 
     def Login(self, Email = None, Pass = None, UsingSavedAccount = False, UsingSavedPass = False):
         self.br.open("http://m.facebook.com/")
@@ -103,16 +103,16 @@ class Spider:
     def Scan(self, username, idType = 'username', startindex = '0'):
         startindex = str(startindex)
         self.UserInit(username, idType = idType, startindex = startindex)
-        self.Extracter.UserInit(username = username, idType = idType)
+        self.Extractor.UserInit(username = username, idType = idType)
 
         # Get Personal Info
         string = self.Load(self.Prefix + self.CurrentUser + '/')
-        Flag = self.Extracter.ScanProfile(string)
+        Flag = self.Extractor.ScanProfile(string)
 
         # Get Friends Profile Info
         string = self.Load(self.UserPrefix + self.StartIndex)
 
-        self.Extracter.ScanFriendsProfile(string)
+        self.Extractor.ScanFriendsProfile(string)
 
         # Read Friends List
         while (Flag):
@@ -123,8 +123,8 @@ class Spider:
             except TypeError:
                 return
 
-            self.StartIndex = self.Extracter.ScanFriends(string)
+            self.StartIndex = self.Extractor.ScanFriends(string)
 
     def Output(self, WriteHandle):
-        json.dump(self.Extracter.ContentMake(), WriteHandle)
+        json.dump(self.Extractor.ContentMake(), WriteHandle)
         print "Info: Output User: ", self.CurrentUser, ', ', self.idType

@@ -4,12 +4,12 @@ import Queue
 
 class Colony:
 
-    def __init__(self, SpiderClass, ExtracterClass, 
+    def __init__(self, SpiderClass, ExtractorClass, 
             WriteHandle, DownloadQueue, RegularExpression, Pattern, IconFolder, 
             HashTableBackup = 'Hash.bak.json', TaskQueueBackup = 'Task.bak.json', SeparatorPath = None, debug = False):
 
         self.Spider = SpiderClass
-        self.Extracter = ExtracterClass
+        self.Extractor = ExtractorClass
 
         self.WriteHandle = WriteHandle
         self.DownloadQueue = DownloadQueue
@@ -63,16 +63,16 @@ class Colony:
         self.DownloadQueue.put(arg)
 
     def SpiderInit(self):
-        Spider = self.Spider(self.TaskQueue, self.ExtracterInit(), self.DebugMode)
+        Spider = self.Spider(self.TaskQueue, self.ExtractorInit(), self.DebugMode)
         Spider.Login(UsingSavedAccount = True, UsingSavedPass = True)
         self.SpiderQueue.put(Spider)
 
-    def ExtracterInit(self):
+    def ExtractorInit(self):
         if self.SeparatorPath != None:
-            return self.Extracter(self, self.RegularExpression, self.Pattern, self.IconFolder,
+            return self.Extractor(self, self.RegularExpression, self.Pattern, self.IconFolder,
                     self.SeparatorPath)
         else:
-            return self.Extracter(self, self.RegularExpression, self.Pattern, self.IconFolder)
+            return self.Extractor(self, self.RegularExpression, self.Pattern, self.IconFolder)
 
     def Push(self, Identity):
         identity = '%s, %s' %(Identity[0], Identity[1]) #[0]: User Identity; [1]: idType
