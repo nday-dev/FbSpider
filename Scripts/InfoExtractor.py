@@ -18,7 +18,7 @@ class InfoExtractor:
         
         self.SeparatorPath = SeparatorPath
 
-        self.Patterns = self.PatternInit(Pattern)
+        self.Pattern = self.PatternInit(Pattern)
 
     def FileDownload(self, URL, path):
         self.Colony.Download((URL, path,))
