@@ -118,7 +118,7 @@ class InfoExtractor:
         # Get Friends Profile Info
         try:
             self.NumberOfFriends = int(self.ReGet(self.Pattern['FriendsProfile']['NumberOfFriends'], string, group = 1))
-        except AttributeError:
+        except ValueError:
             print "Error: No Friends for this user!"
             # raise ValueError, "No Friends for this user!"
             self.NumberOfFriends = 0
