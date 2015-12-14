@@ -111,17 +111,18 @@ class Spider:
         Flag = self.Extractor.ScanProfile(string)
 
         # Get Friends Profile Info
-        string = self.Load(self.UserPrefix + self.StartIndex)
+        if (Flag):
+            string = self.Load(self.UserPrefix + self.StartIndex)
 
-        self.Extractor.ScanFriendsProfile(string)
+            Flag = self.Extractor.ScanFriendsProfile(string)
 
         # Read Friends List
         while (Flag):
             print "Info: Sleep: 5 Sec"
             time.sleep(5)
-            try:
+            if (self.StartIndex != 'N.A.'):
                 string = self.Load(self.UserPrefix + self.StartIndex)
-            except TypeError:
+            else:
                 return
 
             self.StartIndex = self.Extractor.ScanFriends(string)
