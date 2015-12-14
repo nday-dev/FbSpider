@@ -41,7 +41,7 @@ class Spider:
         # Info Extractor
         self.Extractor = InfoExtractor
 
-    def Login(self, Email = None, Pass = None, UsingSavedAccount = False, UsingSavedPass = False):
+    def Login(self, Email = None, Pass = None, UsingSavedAccount = False, UsingSavedPass = False, No = 0):
         self.br.open("http://m.facebook.com/")
         self.br.select_form(nr=0)
         #self.br['locale'] = 'en_US'
@@ -49,7 +49,7 @@ class Spider:
         if (Email != None):
             self.br['email'] = Email
         elif UsingSavedAccount:
-            self.br['email'] = keyring.get_password('FbSpider', 'Account')
+            self.br['email'] = keyring.get_password('FbSpider', 'Account' + str(No))
         else:
             self.br['email'] = raw_input('E-mail Address: ')
 
