@@ -64,7 +64,7 @@ class Colony:
         self.DownloadQueue.put(arg)
 
     def SpiderInit(self):
-        for i in range(0, keyring.get_password('FbSpider', 'Account')):
+        for i in range(0, int(keyring.get_password('FbSpider', 'Account'))):
             Spider = self.Spider(self.TaskQueue, self.ExtractorInit(), self.DebugMode)
             Spider.Login(UsingSavedAccount = True, UsingSavedPass = True, No = i)
             self.SpiderQueue.put(Spider)
