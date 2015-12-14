@@ -1,1 +1,1 @@
-from Script import *
+from Scripts import *
