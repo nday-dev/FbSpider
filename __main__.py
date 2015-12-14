@@ -3,12 +3,15 @@ from __init__ import *
 import json
 import Queue
 
-RuntimeDataPrefix = './data.runtime/'
-LibPrefix = './lib/'
+RuntimeDataPrefix = './Data.Runtime/'
+LibPrefix = './Library/'
 
 open(RuntimeDataPrefix + 'Chinese.bak.json', 'ab').write('[')
 open(RuntimeDataPrefix + 'Foreigner.bak.json', 'ab').write('[')
 open(RuntimeDataPrefix + 'Student.bak.json', 'ab').write('[')
+
+judge = Judge(
+    SurnameCharacter = LibPrefix + 'Surname.Chinese.json', SurnamePinyin = LibPrefix + 'Surname.Pinyin.json')
 
 Output = open(RuntimeDataPrefix + 'result.json', 'wb')
 TaskQueue = Queue.Queue(maxsize = 0)
@@ -22,7 +25,7 @@ separatorPath = {
     'Student': RuntimeDataPrefix + 'Student.bak.json'}
 
 colony = Colony(Spider, InfoExtracter, 
-        Output, TaskQueue, json.load(open(LibPrefix + 'RegularExpression.json')), json.load(open(LibPrefix + 'InfoExtractorRe.json')), 
+        judge, Output, TaskQueue, json.load(open(LibPrefix + 'RegularExpression.json')), json.load(open(LibPrefix + 'InfoExtractorRe.json')), 
             RuntimeDataPrefix + './Icon',
         HashTableBackup = RuntimeDataPrefix + 'Hash.bak.json', TaskQueueBackup = RuntimeDataPrefix + "Task.bak.json", SeparatorPath = separatorPath)
 

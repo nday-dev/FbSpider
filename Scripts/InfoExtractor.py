@@ -7,10 +7,11 @@ typeEncode = sys.getfilesystemencoding()
 
 class InfoExtractor:
 
-    def __init__(self, Colony, RegularExpression, Pattern, IconFolder, 
+    def __init__(self, Colony, Judge, RegularExpression, Pattern, IconFolder, 
             SeparatorPath = {'Foreigner': 'Foreigner.bak.json', 'Chinese': 'Chinese.bak.json', 'Students': 'Student.bak.json'}):
 
         self.Colony = Colony
+        self.Judge = Judge
         self.RegularExpression = RegularExpression
         self.IconFolder = IconFolder
         
@@ -52,7 +53,11 @@ class InfoExtractor:
         self.Friends = []
 
     def JudgeUser(self, user):
-        return True
+        if self.Judge.SurnameJudge(user['NickName']):
+            return True
+        if self.Judge.DescriptionJudge(user['Description']):
+            return True
+        return False
 
     def JudgeProfile(self, PersonalInfo):
         return True
