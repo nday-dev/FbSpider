@@ -33,19 +33,19 @@ class InfoExtractor:
 
     def PatternInit(self, RegularExpression):
         Pattern = {}
-        for item in RegularExpression:
+        for item in RegularExpression.items():
             key, value = item
             if type(value) == str:
                 Pattern[key] = re.compile(value)
             elif type(value) == unicode:
                 Pattern[key] = re.compile(value.encode(typeEncode))
             elif type(value) == dict:
-                Pattern[key] = self.Pattern(value)
+                Pattern[key] = self.PatternInit(value)
             else:
                 print item
                 print "Error: PatternInit: Unexpected Pattern re value type!"
                 # raise AttributeError, "Unexpected Pattern re value type!"
-        return Info
+        return Pattern
 
     def UserInit(self, username, idType = 'username'):
         self.CurrentUser = username
