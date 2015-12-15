@@ -12,7 +12,7 @@ class Judge():
         self.NotChineseCharacter = re.compile(ur'^[^\u4e00-\u9fa5]*$')
 
     def SurnameJudge(self, Name):
-        if self.NotChineseCharacter(Name) == None: # True if Name contains Chinese Characters.
+        if self.NotChineseCharacter.search(Name) == None: # True if Name contains Chinese Characters.
             return True
 
         Name = Name.lower()
