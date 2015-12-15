@@ -135,7 +135,7 @@ class InfoExtractor:
             # raise ValueError, "No UserInfo could be matched in this page!"
         for Info in UserInfo:
             user = {}
-            for item in self.Pattern['Friends']:
+            for item in self.Pattern['Friends'].items():
                 key, value = item
                 user[key] = self.ReGet(value, Info, group = 1)
             self.Friends.append(user)
