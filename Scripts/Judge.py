@@ -16,6 +16,11 @@ class Judge():
     def SurnameJudge(self, Name):
         try:
             Name = Name.decode(chardet.detect(Name).get('encoding', 'utf-8'))
+        except UnicodeDecodeError:
+            try:
+                Name = Name.decode('utf-8')
+            except TypeError:
+                pass
         except TypeError:
             pass
         if self.NotChineseCharacter.search(Name) == None: # True if Name contains Chinese Characters.
@@ -36,6 +41,11 @@ class Judge():
     def DescriptionJudge(self, Description):
         try:
             Description = Description.decode(chardet.detect(Description).get('encoding', 'utf-8'))
+        except UnicodeDecodeError:
+            try:
+                Name = Name.decode('utf-8')
+            except TypeError:
+                pass
         except TypeError:
             pass
         if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
