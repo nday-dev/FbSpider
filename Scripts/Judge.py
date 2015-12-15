@@ -40,7 +40,7 @@ class Judge():
             pass
         if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
             return True
-        if self.NoneASCII.search(Name) != None:
+        if self.NoneASCII.search(Description) != None:
             return False
 
         return False
