@@ -11,6 +11,7 @@ class Judge():
         self.SurnamePinyin = json.load(open(SurnamePinyin, 'rb'))
         self.Extractor = re.compile(r'^([\w]+)[ ]?.*?[ ]?(?:([\w]*)$)')
         self.NotChineseCharacter = re.compile(ur'^[^\u4e00-\u9fa5]*$')
+        self.NoneASCII = re.compile(ur'[\u0080-\uffff]')
 
     def SurnameJudge(self, Name):
         try:
@@ -19,6 +20,8 @@ class Judge():
             pass
         if self.NotChineseCharacter.search(Name) == None: # True if Name contains Chinese Characters.
             return True
+        if self.NoneASCII.search(Name) != None:
+            return False
 
         Name = Name.lower()
         Surname = self.Extractor.findall(Name)[0]
@@ -37,5 +40,7 @@ class Judge():
             pass
         if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
             return True
+        if self.NoneASCII.search(Name) != None:
+            return False
 
         return False
