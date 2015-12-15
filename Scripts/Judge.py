@@ -26,7 +26,7 @@ class Judge():
         return False
 
     def DescriptionJudge(self, Description):
-        if self.NotChineseCharacter(Description) == None: # Ture if Description contains Chinese Characters.
+        if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
             return True
 
         return False
