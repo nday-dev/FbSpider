@@ -1,6 +1,7 @@
 #--coding:utf-8--
 import re
 import json
+import chardet
 
 class Judge():
     def __init__(self, 
@@ -12,6 +13,7 @@ class Judge():
         self.NotChineseCharacter = re.compile(ur'^[^\u4e00-\u9fa5]*$')
 
     def SurnameJudge(self, Name):
+        Name = Name.decode(chardet.detect(Name)['encoding'])
         if self.NotChineseCharacter.search(Name) == None: # True if Name contains Chinese Characters.
             return True
 
@@ -26,6 +28,7 @@ class Judge():
         return False
 
     def DescriptionJudge(self, Description):
+        Description = Description.decode(chardet.detect(Description)['encoding'])
         if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
             return True
 
