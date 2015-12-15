@@ -13,7 +13,7 @@ class Judge():
         self.NotChineseCharacter = re.compile(ur'^[^\u4e00-\u9fa5]*$')
 
     def SurnameJudge(self, Name):
-        Name = Name.decode(chardet.detect(Name)['encoding'])
+        Name = Name.decode(chardet.detect(Name).get('encoding', 'utf-8'))
         if self.NotChineseCharacter.search(Name) == None: # True if Name contains Chinese Characters.
             return True
 
@@ -28,7 +28,7 @@ class Judge():
         return False
 
     def DescriptionJudge(self, Description):
-        Description = Description.decode(chardet.detect(Description)['encoding'])
+        Description = Description.decode(chardet.detect(Description).get('encoding', 'utf-8'))
         if self.NotChineseCharacter.search(Description) == None: # Ture if Description contains Chinese Characters.
             return True
 
