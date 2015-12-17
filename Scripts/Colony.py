@@ -1,7 +1,9 @@
 #--coding:utf-8--
 import json
+import time
 import Queue
 import keyring
+import traceback
 
 class Colony:
 
@@ -89,11 +91,20 @@ class Colony:
     def Manage(self):
         Flag = ''
         while not self.TaskQueue.empty():
-            Task = self.TaskQueue.get()
-            print "Info: Current Task: ", Task
-            Spider = self.SpiderQueue.get()
-            Spider.Scan(Task[0], Task[1]) # Task should be a tuple object, with [0]: user identity; [1]: idType
-            self.WriteHandle.write(Flag)
-            Flag = ','
-            Spider.Output(self.WriteHandle)
-            self.SpiderQueue.put(Spider)
+            try:
+                print "Log: Time: ", time.asctime(time.localtime(time.time()))
+                Task = self.TaskQueue.get()
+                print "Info: Current Task: ", Task
+                Spider = self.SpiderQueue.get()
+                Spider.Scan(Task[0], Task[1]) # Task should be a tuple object, with [0]: user identity; [1]: idType
+            except:
+                print "Error:"
+                print "  Time: ", time.asctime(time.localtime(time.time()))
+                print "  Task: ", Task
+                print "  Error Info:"
+                traceback.print_exc()
+            finally:
+                self.WriteHandle.write(Flag)
+                Flag = ','
+                Spider.Output(self.WriteHandle)
+                self.SpiderQueue.put(Spider)

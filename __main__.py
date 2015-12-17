@@ -1,6 +1,7 @@
 #--coding:utf-8--
 from __init__ import *
 import json
+import time
 import Queue
 
 RuntimeDataPrefix = './Data.Runtime/'
@@ -32,6 +33,7 @@ colony = Colony(Spider, InfoExtractor,
 colony.SpiderInit()
 try:
     print "Info: Start Colony.Manage()"
+    print "Log: Timezone: ", time.tzname
     colony.Manage()
 except KeyboardInterrupt:
     pass
